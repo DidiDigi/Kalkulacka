@@ -8,10 +8,9 @@ import net.miginfocom.swing.*;
 
 public class HlavniOkno extends JFrame {
 
-    private Double clen1 = 0.0;
-    private Double clen2 = 0.0;
+    private Double clen = 0.0;
     private Double result = 0.0;
-    private int operace = 0;
+    private int operace = 1; //vždy začínám s nastavenou operací plus, protože na začátku výpočtu si jen vstup přiřadím do výsledku
     private boolean bylVypocitanVysledek = true;
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
@@ -101,39 +100,36 @@ public class HlavniOkno extends JFrame {
     }
 
     private void zapisZnak(String znak) {
-        String result = editResult.getText();
+        String vstup = editResult.getText();
 
         if (bylVypocitanVysledek) {
-            result = "0";
+            vstup = "0";
             bylVypocitanVysledek = false;
         }
 
         //když už řetězec obsahuje desetinnou čárku, tak nemůžu přidat další
-        if (znak.equals(".") && result.contains(".")) {
+        if (znak.equals(".") && vstup.contains(".")) {
            return;
         }
 
         //když jako první znak zapisuju desetinnou čárku, tak nechci mazat první nulu
-        if (result.equals("0") && znak.equals(".")) {
-            editResult.setText(result + znak);
+        if (vstup.equals("0") && znak.equals(".")) {
+            editResult.setText(vstup + znak);
             return;
         }
 
         // když zapisuju první číslici, tak chci smazat první nulu
-        if (result.equals("0")) {
+        if (vstup.equals("0")) {
             editResult.setText(znak);
         }
         else {
-            editResult.setText(result + znak);
+            editResult.setText(vstup + znak);
         }
     }
 
     private void priStiskuBtnCE(ActionEvent e) {
         deleteResult();
-        clen1 = 0.0;
-        clen2 = 0.0;
-        result = 0.0;
-        operace = 0;
+        setDefaultValues();
     }
 
     private void deleteResult () {
@@ -142,55 +138,39 @@ public class HlavniOkno extends JFrame {
 
     private void priStiskuBtnPlus(ActionEvent e) {
         zapisOperaci(1);
-        zapisClen();
     }
 
     private void priStiskuBtnMinus(ActionEvent e) {
         zapisOperaci(2);
-        zapisClen();
     }
 
     private void priStiskuBtnDivide(ActionEvent e) {
         zapisOperaci(4);
-        zapisClen();
     }
     private void priStiskuBtnMulti(ActionEvent e) {
         zapisOperaci(3);
-        zapisClen();
     }
 
     private void zapisClen() {
-       if (clen1 == 0.0) {
-           clen1 = Double.parseDouble(editResult.getText());
-       }
-       else {
-           clen2 = Double.parseDouble(editResult.getText());
-       }
-
+       clen = Double.parseDouble(editResult.getText());
        deleteResult();
     }
 
     private void zapisOperaci(int operace){
-        //když se zadá 1+1 a namísto = se opět zadá +, musím provést předchozí operaci
-        if (clen1 != 0.0 && clen2 != 0.0) {
-            spocitejVysledek();
-            editResult.setText(result.toString());
-            clen1 = result;
-            clen2 = 0.0;
-            this.operace = 0;
-        }
+        zapisClen();
+        spocitejVysledek();
         this.operace = operace;
     }
 
     private void spocitejVysledek () {
         switch (operace) {
-            case 1: result = clen1+clen2;
+            case 1: result = result + clen;
                 break;
-            case 2:  result = clen1-clen2;
+            case 2:  result = result - clen;
                 break;
-            case 3:  result = clen1*clen2;
+            case 3:  result = result * clen;
                 break;
-            case 4:  result = clen1/clen2;
+            case 4:  result = result/clen;
                 break;
             default:
                 break;
@@ -200,17 +180,16 @@ public class HlavniOkno extends JFrame {
 
     private void priStiskuBtnEqual(ActionEvent e) {
         zapisClen();
-        if (operace == 0) {
+        spocitejVysledek();
+        editResult.setText(result.toString());
+        bylVypocitanVysledek = true;
+        setDefaultValues();
+    }
 
-        }
-        else {
-            spocitejVysledek();
-            editResult.setText(result.toString());
-            bylVypocitanVysledek = true;
-            clen1 = 0.0;
-            clen2 = 0.0;
-            operace = 0;
-        }
+    private void setDefaultValues() {
+        clen = 0.0;
+        result = 0.0;
+        operace = 1;
     }
 
     private void initComponents() {
